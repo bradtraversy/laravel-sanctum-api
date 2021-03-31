@@ -13,7 +13,7 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 ```
 
-Create a _database.sqlite_ file in the _database_ directory OR add use a different driver and add your config to the _.env_ file
+Create a _database.sqlite_ file in the _database_ directory
 
 ```
 # Run the webserver on port 8000
