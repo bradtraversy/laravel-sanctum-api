@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-// Route::resource('products', ProductController::class);
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -33,7 +31,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
-
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
