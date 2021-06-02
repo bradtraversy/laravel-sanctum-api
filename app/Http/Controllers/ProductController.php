@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
@@ -20,7 +21,6 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -28,16 +28,24 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'slug' => 'required',
-            'price' => 'required'
+            'price' => 'required',
         ]);
 
-        return Product::create($request->all());
+        // get current user id
+        $userId = $request->user()->id;
+        $product = $request->all();
+        if ($userId) {
+            $product = array_merge($request->all(), ['user_id' => $userId]);
+        }
+
+        return Product::create($product);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -48,32 +56,52 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
-        $product->update($request->all());
-        return $product;
+
+        if ($product->user_id == $request->user()->id) {
+            // update
+            $product->update($request->all());
+
+            return $product;
+        }
+
+        return response([
+            'message' => 'forbidden to update this product',
+        ], 403);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        return Product::destroy($id);
+        $product = Product::find($id);
+
+        if ($product->user_id == request()->user()->id) {
+            // delete product
+            return $product->delete();
+        }
+
+        return response([
+            'message' => 'forbidden to delete this product',
+        ], 403);
     }
 
-     /**
-     * Search for a name
+    /**
+     * Search for a name.
      *
-     * @param  str  $name
+     * @param string $name
+     *
      * @return \Illuminate\Http\Response
      */
     public function search($name)
