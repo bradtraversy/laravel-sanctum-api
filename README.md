@@ -27,6 +27,7 @@ php artisan serve
 
 GET   /api/products
 GET   /api/products/:id
+GET   /api/products/search/:search 
 
 POST   /api/login
 @body: email, password
