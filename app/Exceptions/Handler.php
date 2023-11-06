@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Exception;
 
 class Handler extends ExceptionHandler
 {
@@ -36,6 +37,25 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+        $this->renderable(function (Exception $e, $request) {
+            if ($request->is('api/*')) {
+                $message = "Something went wrong";
+                $status = 500;
+                if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $message = "Not authenticated";
+                    $status = 401;
+                } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
+                    $message = $e->validator->errors();
+                    $status = 403;
+                } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                    $message = 'Resource not found';
+                    $status = 404;
+                }
+                return response()->json([
+                    'message' => $message
+                ], $status);
+            }
         });
     }
 }
